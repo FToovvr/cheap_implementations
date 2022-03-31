@@ -106,3 +106,115 @@ export class 不得连续 implements Addon {
     }
   }
 }
+
+export class 不得连续远方 implements Addon {
+  lastStep: Step | null = null;
+
+  init(game: GameMachine) {
+    game.addRuleDescription("不得连续去远方之城地区");
+  }
+
+  beforeSettled(game: GameMachine, step: Step) {
+    const lastStep = this.lastStep;
+    this.lastStep = step;
+    if (!lastStep) {
+      return;
+    }
+
+    const last = new Map<Player, string>();
+    const now = new Map<Player, string>();
+
+    for (const { x, y } of [{ x: last, y: lastStep }, { x: now, y: step }]) {
+      for (const [place, players] of y.entries()) {
+        for (const player of players) {
+          x.set(player, place);
+        }
+      }
+    }
+
+    for (const [_, player] of game.players) {
+      if (last.get(player) === now.get(player) && now.get(player) === "远方之城") {
+        game.errorState = `玩家 ${player.name} 滞留远方之城！`;
+        console.error(game.errorState);
+        return;
+      }
+    }
+  }
+}
+
+// TODO: 尚未测试！
+export class 连续惩罚 implements Addon {
+  stayTimes: Map<Player, { place: Place; count: number }> = new Map();
+
+  penalties: { player: Player; score: number; alreadyStays: number }[] = [];
+  message: string = "";
+
+  init(game: GameMachine) {
+    game.addRuleDescription("滞留惩罚：一次：-1；两次：-2；两次以上：-3；有能力支付惩罚才可行动");
+  }
+
+  get extraDescriptions() {
+    return ["本轮滞留惩罚：" + this.message];
+  }
+
+  beforeSettled(game: GameMachine, step: Step) {
+    this.penalties = [];
+
+    for (const [place, players] of step.entries()) {
+      for (const player of players) {
+        const lastPlace = this.stayTimes.get(player);
+        const _place = game.places.get(place);
+        if (!_place) {
+          game.errorState = `${place} 没有对应地点？`;
+          return;
+        }
+        if (lastPlace?.place !== _place) {
+          this.stayTimes.set(player, { place: _place, count: 1 });
+        } else {
+          if (lastPlace.count === 1) {
+            this.penalties.push({
+              player,
+              score: 1,
+              alreadyStays: lastPlace.count,
+            });
+          } else if (lastPlace.count === 2) {
+            this.penalties.push({
+              player,
+              score: 2,
+              alreadyStays: lastPlace.count,
+            });
+          } else {
+            this.penalties.push({
+              player,
+              score: 3,
+              alreadyStays: lastPlace.count,
+            });
+          }
+
+          const now = { ...lastPlace, count: lastPlace.count + 1 };
+          this.stayTimes.set(player, now);
+        }
+      }
+    }
+
+    const _message = [];
+    this.message = "";
+    for (const penalty of this.penalties) {
+      _message.push(
+        `『${penalty.player.name}』滞留${penalty.alreadyStays}次：-${penalty.score}`,
+      );
+      if (penalty.player.score < penalty.score) {
+        game.errorState =
+          `${penalty.player.name} 无法支付惩罚！（${penalty.player.score} < ${penalty.score}）`;
+        return;
+      }
+    }
+    this.message = _message.join("；");
+  }
+
+  afterSettled(game: GameMachine) {
+    for (const penalty of this.penalties) {
+      penalty.player.changeScore(-penalty.score);
+    }
+  }
+}

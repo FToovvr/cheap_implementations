@@ -2,6 +2,7 @@ import { Step } from "./game.ts";
 
 export interface GameMachine {
   players: Map<string, Player>;
+  places: Map<string, Place>;
 
   errorState: string | null;
 

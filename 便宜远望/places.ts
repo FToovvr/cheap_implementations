@@ -100,8 +100,8 @@ export class 远方之城 implements Place {
     return `一人，且分数≥${this.minWinScore}：获胜；超过一人：各-${this.penalty}`;
   }
 
-  minWinScore = 10;
-  penalty = 3;
+  minWinScore: number;
+  penalty: number;
 
   constructor(
     args: { minWinScore?: number; penalty?: number } = {},
@@ -128,5 +128,52 @@ export class 远方之城 implements Place {
       return;
     }
     visitors.forEach((visitor) => visitor.changeScore(-this.penalty));
+  }
+}
+
+export class 远方之城改 implements Place {
+  get description() {
+    return `一人，且分数≥${this.minWinScore}：获胜；超过一人：最高分者-${this.penalty.top}，其余人-${this.penalty.other}`;
+  }
+
+  minWinScore: number;
+  penalty: { top: number; other: number };
+
+  constructor(
+    args: { minWinScore?: number; penalty?: { top: number; other: number } } =
+      {},
+  ) {
+    args = {
+      ...{ minWinScore: 10, penalty: { top: 6, other: 4 } },
+      ...args,
+    };
+    this.minWinScore = args.minWinScore!;
+    this.penalty = args.penalty!;
+  }
+
+  init(game: GameMachine) {
+    game.addWinConditionDescription("满足远方之城条件");
+  }
+  visit(visitors: Player[] | null): void {
+    if (!visitors) {
+      return;
+    }
+    if (visitors.length === 1) {
+      if (visitors[0].score >= this.minWinScore) {
+        visitors[0].wins();
+      }
+      return;
+    }
+    let maxScore = 0;
+    for (const visitor of visitors) {
+      if (visitor.score > maxScore) {
+        maxScore = visitor.score;
+      }
+    }
+    visitors.forEach((visitor) =>
+      visitor.changeScore(
+        -(visitor.score === maxScore ? this.penalty.top : this.penalty.other),
+      )
+    );
   }
 }
