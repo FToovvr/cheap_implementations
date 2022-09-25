@@ -21,7 +21,7 @@ export function creatBaseGame(players: Map<string, Player>) {
 }
 
 function main() {
-  const pl = {
+  const pl = { // 第一个字符串是单字昵称，第二个字符串是玩家全称
     aaa: new Player("", ""),
     bbb: new Player("", ""),
     ccc: new Player("", ""),
@@ -33,7 +33,7 @@ function main() {
   const gm = creatBaseGame(new Map(Object.entries(pl)));
 
   const steps: (Step | null)[] = [
-    null,
+    null, // 渲染只会处理到 null 之前的步骤
     // 1
     new Map(Object.entries({
       试炼宝藏: [],
