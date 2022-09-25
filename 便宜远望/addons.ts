@@ -60,11 +60,15 @@ export class 不得连续 implements Addon {
 
     const text = [..._set.values()].map((x) => x.name).join("") + _thisTurnText;
 
-    return [`仅一次可以待在同一地区（已使用：${text}）`];
+    return [`已有过滞留：${text}`];
   }
 
   init(game: GameMachine) {
-    game.addRuleDescription("不得连续去同一地区");
+    if (this.allowOnce) {
+      game.addRuleDescription("整局游戏期间，仅一次允许滞留同一地区");
+    } else {
+      game.addRuleDescription("不得连续去同一地区");
+    }
   }
 
   beforeSettled(game: GameMachine, step: Step) {

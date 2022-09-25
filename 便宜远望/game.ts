@@ -138,7 +138,7 @@ export class GameMachine implements _GameMachine {
     for (const addon of this.addons) {
       if (addon.extraDescriptions) {
         for (const desc of addon.extraDescriptions) {
-          headItems.push("+特殊规则：" + desc);
+          headItems.push("+" + desc);
         }
       }
     }
