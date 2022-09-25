@@ -4,7 +4,7 @@ import { Player } from "../index.ts";
 import { 不得连续远方, 积分胜利 } from "../addons.ts";
 import { 平安小镇, 沃土之森, 试炼宝藏, 远方之城 } from "../places.ts";
 
-export function creatBaseGame(players: Map<string, Player>) {
+export function createBaseGame(players: Map<string, Player>) {
   return new GameMachine({
     players,
     addons: [
@@ -30,7 +30,7 @@ function main() {
     fff: new Player("", ""),
   };
 
-  const gm = creatBaseGame(new Map(Object.entries(pl)));
+  const gm = createBaseGame(new Map(Object.entries(pl)));
 
   const steps: (Step | null)[] = [
     null, // 渲染只会处理到 null 之前的步骤

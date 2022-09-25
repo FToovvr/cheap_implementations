@@ -5,7 +5,7 @@ export { Player } from "./player.ts";
 import { 不得连续, 积分胜利 } from "./addons.ts";
 import { 平安小镇, 沃土之森, 试炼宝藏, 远方之城 } from "./places.ts";
 
-export function creatBaseGame(players: Map<string, Player>) {
+export function createBaseGame(players: Map<string, Player>) {
   return new GameMachine({
     players,
     addons: [
@@ -31,7 +31,7 @@ function main() {
     f: new Player("f", ""),
   };
 
-  const gm = creatBaseGame(new Map(Object.entries(pl)));
+  const gm = createBaseGame(new Map(Object.entries(pl)));
 
   gm.step(
     new Map(Object.entries({

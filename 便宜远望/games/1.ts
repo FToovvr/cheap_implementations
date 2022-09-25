@@ -1,4 +1,4 @@
-import { creatBaseGame, Player } from "../index.ts";
+import { createBaseGame, Player } from "../index.ts";
 import { Step } from "../game.ts";
 
 function main() {
@@ -11,7 +11,7 @@ function main() {
     k7r: new Player("镧", "K7R"),
   };
 
-  const gm = creatBaseGame(new Map(Object.entries(pl)));
+  const gm = createBaseGame(new Map(Object.entries(pl)));
 
   const steps: (Step | null)[] = [
     // null,
